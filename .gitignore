@@ -100,3 +100,7 @@ ENV/
 
 # PyCharm settings
 .idea
+
+#local files
+.vscode
+env
