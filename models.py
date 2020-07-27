@@ -1,30 +1,70 @@
 # database models
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from app import db
+from app import ma
 
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///stock.db"
-db = SQLAlchemy(app)
+# many_to_many relationships
+companies_countries_association = db.Table('companies_countries', db.Model.metadata,
+                                           db.Column('company_id', db.Integer, db.ForeignKey('companies.id')),
+                                           db.Column('country_id', db.Integer, db.ForeignKey('countries.id'))
+                                           )
+companies_categories_association = db.Table('companies_categories', db.Model.metadata,
+                                            db.Column('company_id', db.Integer, db.ForeignKey('companies.id')),
+                                            db.Column('category_id', db.Integer, db.ForeignKey('categories.id'))
+                                            )
 
 
 class Company(db.Model):
-    CompanyID = db.Column(db.Integer,primary_key=True)
-    Budget = db.Column(db.Integer)
-    Bid = db.Column(db.Integer)
+    __tablename__ = 'companies'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+    budget = db.Column(db.Integer)
+    bid = db.Column(db.Integer)
+    countries = db.relationship("Country", secondary=companies_countries_association)
+    categories = db.relationship("Category", secondary=companies_categories_association)
 
-class Countries(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    CompanyID = db.Column(db.Integer,db.ForeignKey('company.CompanyID'))
-    company = db.relationship('Company')
-    Country = db.Column(db.String(2))
+    def __repr__(self):
+        return '<Company %r>' % self.name
+
+
+class Country(db.Model):
+    __tablename__ = 'countries'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(2))
+
+    def __repr__(self):
+        return '<Country %r>' % self.name
+
 
 class Category(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    CompanyID = db.Column(db.Integer,db.ForeignKey('company.CompanyID'))
-    company = db.relationship('Company')
-    Category = db.Column(db.String(10))
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+
+    def __repr__(self):
+        return '<Category %r>' % self.name
 
 
+# schemas for serialize and deserialize objects
+class CompanySchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'name', 'budget', 'bid', 'countries', 'categories')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+class CountrySchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'name')
+
+
+class CategorySchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'name')
+
+
+company_schema = CompanySchema()
+companies_schema = CompanySchema(many=True)
+
+country_schema = CountrySchema()
+countries_schema = CountrySchema(many=True)
+
+category_schema = CategorySchema()
+categories_schema = CategorySchema(many=True)
