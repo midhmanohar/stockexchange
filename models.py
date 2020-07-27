@@ -45,11 +45,6 @@ class Category(db.Model):
 
 
 # schemas for serialize and deserialize objects
-class CompanySchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'name', 'budget', 'bid', 'countries', 'categories')
-
-
 class CountrySchema(ma.Schema):
     class Meta:
         fields = ('id', 'name')
@@ -58,6 +53,14 @@ class CountrySchema(ma.Schema):
 class CategorySchema(ma.Schema):
     class Meta:
         fields = ('id', 'name')
+
+
+class CompanySchema(ma.Schema):
+    countries = ma.Nested(CountrySchema, many=True)
+    categories = ma.Nested(CategorySchema, many=True)
+
+    class Meta:
+        fields = ('id', 'name', 'budget', 'bid', 'countries', 'categories')
 
 
 company_schema = CompanySchema()
