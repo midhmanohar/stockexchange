@@ -95,8 +95,8 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# SQLite database
-*.db
+# # SQLite database
+# *.db
 
 # PyCharm settings
 .idea
