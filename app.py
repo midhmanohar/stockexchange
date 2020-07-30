@@ -40,7 +40,7 @@ def shortlist():
 
     for company in companies_list:
         if company in base_target:
-            if(company.budget >= company.bid):
+            if(company.budget*100 >= company.bid):
                 print("{%s, Passed}" % company.name)
             else:
                 print("{%s, Failed}" % company.name)
