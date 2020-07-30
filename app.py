@@ -11,7 +11,7 @@ ma = Marshmallow(app)
 from models import *
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def shortlist():
     # Retrieve all request arguments, return None if there is no arguments
     country_name = request.args.get('countryCode')
@@ -35,7 +35,37 @@ def shortlist():
         else:
             print("{%s, Failed}" % company.name)
 
-    # code here
+    
+    print("Budget Check:")
+
+    for company in companies_list:
+        if company in base_target:
+            if(company.budget >= company.bid):
+                print("{%s, Passed}" % company.name)
+            else:
+                print("{%s, Failed}" % company.name)
+        else:
+            print("{%s, Failed}" % company.name)
+
+
+        
+    
+    print("BaseBid Check:")
+
+    for company in companies_list:
+        if company in base_target:
+            if(company.bid >= int(base_bid)):
+                print("{%s, Passed}" % company.name)
+            else:
+                print("{%s, Failed}" % company.name)
+        else:
+            print("{%s, Failed}" % company.name)
+   
+
+
+
+
+    
 
     return jsonify(response="Shortlisted company id")
 
