@@ -11,6 +11,34 @@ ma = Marshmallow(app)
 from models import *
 
 
+@app.route('/')
+def shortlist():
+    # Retrieve all request arguments, return None if there is no arguments
+    country_name = request.args.get('countryCode')
+    category_name = request.args.get('Category')
+    base_bid = request.args.get('BaseBid')
+
+    # Get all companies based on given country code and category name
+    base_target = Company.query.filter(Company.countries.any(name=country_name)).filter(
+        Company.categories.any(name=category_name)).all()
+
+    # If query returns none send response
+    if not base_target:
+        return jsonify(response="No Companies Passed from Targeting")
+
+    # Log results
+    companies_list = Company.query.all()
+    print("BaseTargeting:")
+    for company in companies_list:
+        if company in base_target:
+            print("{%s, Passed}" % company.name)
+        else:
+            print("{%s, Failed}" % company.name)
+
+    # code here
+
+    return jsonify(response="Shortlisted company id")
+
 
 @app.route('/companies', methods=['GET'])
 def companies():
@@ -19,8 +47,6 @@ def companies():
     return jsonify(result)
 
 
-
 if __name__ == '__main__':
     app.debug = True
     app.run()
-
