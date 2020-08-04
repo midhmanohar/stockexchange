@@ -14,13 +14,15 @@ from models import *
 @app.route('/', methods=['GET'])
 def shortlist():
     # Retrieve all request arguments, return None if there is no arguments
-    country_name = request.args.get('countryCode')
+    country_name = request.args.get('countrycode')
     category_name = request.args.get('Category')
     base_bid = request.args.get('BaseBid')
 
     # Get all companies based on given country code and category name
     base_target = Company.query.filter(Company.countries.any(name=country_name)).filter(
         Company.categories.any(name=category_name)).all()
+
+    result= []
 
     # If query returns none send response
     if not base_target:
@@ -31,7 +33,10 @@ def shortlist():
     print("BaseTargeting:")
     for company in companies_list:
         if company in base_target:
+            if company not in result:
+                result.append(company)
             print("{%s, Passed}" % company.name)
+
         else:
             print("{%s, Failed}" % company.name)
 
@@ -41,6 +46,8 @@ def shortlist():
     for company in companies_list:
         if company in base_target:
             if(company.budget*100 >= company.bid):
+                if company not in result:
+                    result.append(company)
                 print("{%s, Passed}" % company.name)
             else:
                 print("{%s, Failed}" % company.name)
@@ -55,19 +62,25 @@ def shortlist():
     for company in companies_list:
         if company in base_target:
             if(company.bid >= int(base_bid)):
+                if company not in result:
+                    result.append(company)
                 print("{%s, Passed}" % company.name)
             else:
                 print("{%s, Failed}" % company.name)
         else:
             print("{%s, Failed}" % company.name)
    
+    mincompany = 0
+    shortList = result[0]
+    for company in result:
+        if company.bid > mincompany :
+            mincompany=company.bid
+            shortList = company
 
+    # shortList.budget -= base_bid
+    # session.commit()
 
-
-
-    
-
-    return jsonify(response="Shortlisted company id")
+    return jsonify(response=shortList.name)
 
 
 @app.route('/companies', methods=['GET'])
